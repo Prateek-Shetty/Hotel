@@ -1,1 +1,14 @@
 /node_modules
+
+# Node modules
+node_modules/
+
+# Logs
+*.log
+
+# dotenv file (if storing secrets)
+.env
+
+# OS-specific
+.DS_Store
+Thumbs.db
