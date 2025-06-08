@@ -1,48 +1,25 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { registerUser } from '../api';
 
-export default function Signup() {
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [msg, setMsg] = useState('');
+const Signup = () => {
+  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
 
-  const handleSignup = (e) => {
+  const handleChange = e => setFormData({ ...formData, [e.target.name]: e.target.value });
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add signup logic here later (call backend)
-    setMsg('Signup feature not implemented yet.');
+    const data = await registerUser(formData);
+    alert(data.message);
   };
 
   return (
-    <div className="container mx-auto p-4 max-w-md">
-      <h1 className="text-2xl font-bold mb-4">Signup</h1>
-      <form onSubmit={handleSignup} className="space-y-4">
-        <input
-          type="text"
-          placeholder="Name"
-          required
-          value={name}
-          onChange={e => setName(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          required
-          value={email}
-          onChange={e => setEmail(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          required
-          value={password}
-          onChange={e => setPassword(e.target.value)}
-          className="w-full border px-3 py-2 rounded"
-        />
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Signup</button>
-      </form>
-      {msg && <p className="mt-4">{msg}</p>}
-    </div>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto mt-10 space-y-4">
+      <input name="name" type="text" onChange={handleChange} placeholder="Name" className="w-full p-2 border" />
+      <input name="email" type="email" onChange={handleChange} placeholder="Email" className="w-full p-2 border" />
+      <input name="password" type="password" onChange={handleChange} placeholder="Password" className="w-full p-2 border" />
+      <button type="submit" className="w-full bg-green-600 text-white py-2 rounded">Sign Up</button>
+    </form>
   );
-}
+};
+
+export default Signup;

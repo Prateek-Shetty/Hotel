@@ -1,38 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Hotels from './pages/Hotels';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
+import TableManager from './pages/TableManager';
+import AdminPanel from './pages/AdminPanel';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
-  const [hotels, setHotels] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('http://localhost:5000/api/hotels') // your backend URL
-      .then(res => res.json())
-      .then(data => {
-        setHotels(data);
-        setLoading(false);
-      })
-      .catch(err => {
-        console.error('Error fetching hotels:', err);
-        setLoading(false);
-      });
-  }, []);
-
-  if (loading) return <div className="text-center mt-10">Loading hotels...</div>;
-
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-3xl font-bold mb-6">Available Hotels</h1>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {hotels.length === 0 && <p>No hotels found.</p>}
-        {hotels.map(hotel => (
-          <div key={hotel._id} className="border rounded-lg p-4 shadow hover:shadow-lg transition">
-            <h2 className="text-xl font-semibold">{hotel.name}</h2>
-            <p className="text-gray-600">{hotel.location}</p>
-            <p className="mt-2">${hotel.price} per night</p>
-            <p className="mt-2 text-sm">{hotel.description}</p>
-          </div>
-        ))}
-      </div>
-    </div>
+    <Router>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/hotels" element={<Hotels />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
+        <Route path="/table-manager" element={<TableManager />} />
+        <Route path="/admin" element={<AdminPanel />} />
+        <Route path="/admin"element={<ProtectedRoute><AdminPanel /></ProtectedRoute>
+  }
+/>
+      </Routes>
+    </Router>
   );
 }
