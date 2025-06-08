@@ -12,3 +12,5 @@ node_modules/
 # OS-specific
 .DS_Store
 Thumbs.db
+
+node_modules/has-symbols/package.json
