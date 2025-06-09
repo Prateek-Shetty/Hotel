@@ -1,5 +1,3 @@
-
-// server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -10,12 +8,14 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// MongoDB connection
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB Connected'))
-  .catch(err => console.error(err));
+.then(() => console.log('MongoDB Connected'))
+.catch(err => console.error(err));
 
+// Routes (all retained as-is)
 app.use('/api/auth', require('./routes/authRoutes'));
-app.use('/api/hotels', require('./routes/hotelRoutes'));
+app.use('/api/hotels', require('./routes/hotelRoutes')); // ✅ fixed CommonJS and working hotel route
 app.use('/api/bookings', require('./routes/bookingRoutes'));
 app.use('/api/tables', require('./routes/tableRoutes'));
 app.use('/api/rooms', require('./routes/roomRoutes'));

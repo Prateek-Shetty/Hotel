@@ -1,11 +1,7 @@
-
 const express = require('express');
 const router = express.Router();
+const { getHotels } = require('../controllers/hotelController');
 
-const { createHotel, getAllHotels } = require('../controllers/hotelController');
-
-// Define routes
-router.post('/', createHotel);
-router.get('/', getAllHotels);
+router.get('/', getHotels);
 
 module.exports = router;
