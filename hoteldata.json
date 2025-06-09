@@ -523,5 +523,47 @@
     ],
     "amenities": ["Spa", "Heritage Tours", "Pool", "WiFi", "Restaurant"],
     "roomTypes": ["Deluxe", "Executive", "Suite"]
-  }
+  },
+  {
+  "name": "Aman Tokyo",
+  "location": "Tokyo, Japan",
+  "mapsLink": "https://www.google.com/maps?q=Aman+Tokyo",
+  "link": "https://www.aman.com/resorts/aman-tokyo",
+  "description": "Minimalist luxury hotel with panoramic city views and traditional Japanese design.",
+  "rating": 4.9,
+  "collection": "Ultra-Luxury Collection",
+  "pricePerNight": {
+    "currency": "INR",
+    "Deluxe": 85000,
+    "Executive": 120000,
+    "Suite": 200000
+  },
+  "images": [
+    "https://www.aman.com/sites/default/files/2023-11/aman_tokyo_japan_-_fb_the_cafe_by_aman_forest_exterior.jpg",
+    "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRLVSSwqU1RRCL91o6sLwEKUrA1mY2prrndxA&s"
+  ],
+  "amenities": ["WiFi", "Spa", "Infinity Pool", "Tea Ceremonies", "Fine Dining"],
+  "roomTypes": ["Deluxe", "Executive", "Suite"]
+},
+{
+  "name": "Belmond Hotel Caruso",
+  "location": "Amalfi Coast, Italy",
+  "mapsLink": "https://www.google.com/maps?q=Belmond+Hotel+Caruso",
+  "link": "https://www.belmond.com/hotels/europe/italy/amalfi-coast/belmond-hotel-caruso/",
+  "description": "Clifftop 11th-century palace with infinity pool overlooking the Mediterranean.",
+  "rating": 4.8,
+  "collection": "European Luxury Collection",
+  "pricePerNight": {
+    "currency": "INR",
+    "Deluxe": 95000,
+    "Executive": 150000,
+    "Suite": 250000
+  },
+  "images": [
+    "https://rbcollection.com/wp-content/uploads/2015/08/HCR-REST-EXT-11-3-700x500.jpg",
+    "https://hips.hearstapps.com/hmg-prod/images/j0855-hcr-0150-top-1532094356.jpg?resize=640:*"
+  ],
+  "amenities": ["WiFi", "Infinity Pool", "Private Beach", "Cooking Classes", "Wine Tasting"],
+  "roomTypes": ["Deluxe", "Executive", "Suite"]
+}
 ]
