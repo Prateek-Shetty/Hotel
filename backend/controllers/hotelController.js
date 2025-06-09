@@ -1,22 +1,46 @@
-
-// controllers/hotelController.js
 const Hotel = require('../models/Hotel');
 
-exports.getHotels = async (req, res) => {
+const createHotel = async (req, res) => {
   try {
-    const hotels = await Hotel.find();
-    res.json(hotels);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to fetch hotels' });
+    const {
+      name,
+      location,
+      mapsLink,
+      description,
+      rating,
+      images,
+      amenities,
+      roomTypes,
+    } = req.body;
+
+    const hotel = new Hotel({
+      name,
+      location,
+      mapsLink,
+      description,
+      rating,
+      images,
+      amenities,
+      roomTypes,
+    });
+
+    await hotel.save();
+    res.status(201).json(hotel);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
-exports.addHotel = async (req, res) => {
+const getAllHotels = async (req, res) => {
   try {
-    const newHotel = new Hotel(req.body);
-    await newHotel.save();
-    res.status(201).json(newHotel);
-  } catch (err) {
-    res.status(500).json({ error: 'Failed to add hotel' });
+    const hotels = await Hotel.find();
+    res.status(200).json(hotels);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
+};
+
+module.exports = {
+  createHotel,
+  getAllHotels,
 };
