@@ -1,39 +1,33 @@
-// pages/Home.jsx
 import React from "react";
-import { Link } from "react-router-dom";
-
+import Navbar1 from "../components/Navbar1";
 
 const Home = () => {
   return (
     <div className="relative h-screen w-full overflow-hidden">
-      <video
-        className="absolute top-0 left-0 w-full h-full object-cover"
-        src="/hotel.mp4"
-        autoPlay
-        loop
-        muted
-        playsInline
-      />
-
-      <div className="absolute inset-0 bg-black bg-opacity-50 z-10"></div>
-
-      <div className="absolute top-4 right-6 z-20 flex gap-4">
-        <Link to="/login">
-          <button className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-            Login
-          </button>
-        </Link>
-        <Link to="/signup">
-          <button className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
-            Signup
-          </button>
-        </Link>
+      {/* Video Background */}
+      <div className="absolute inset-0 -z-10">
+        <video
+          className="w-full h-full object-cover"
+          src="/hotel.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+        />
+        <div className="absolute inset-0 bg-black/50" />
       </div>
 
-      <div className="relative z-20 flex items-center justify-center h-full">
-        <h1 className="text-4xl md:text-6xl text-white font-bold text-center drop-shadow-lg">
+      {/* Login & Signup Buttons */}
+      <Navbar1 />
+
+      {/* Main Text Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center h-full px-4">
+        <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-white text-center mb-6 drop-shadow-2xl">
           Welcome to Luxury Stays
         </h1>
+        <p className="text-white/90 text-lg md:text-xl max-w-2xl text-center mb-8">
+          Experience unparalleled comfort in our exquisite collection of luxury accommodations.
+        </p>
       </div>
     </div>
   );
