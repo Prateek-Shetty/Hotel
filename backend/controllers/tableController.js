@@ -1,22 +1,30 @@
 import Table from '../models/Table.js';
 
-// View tables
 export const getTables = async (req, res) => {
   const tables = await Table.find();
-  res.render('table', { tables });
+  res.json(tables);
 };
 
-// Create new table reservation
-export const createTable = async (req, res) => {
-  const { tableNumber, guestName, reservationDate, price } = req.body;
-  const newTable = new Table({ tableNumber, guestName, reservationDate, price });
-  await newTable.save();
-  res.redirect('/tables');
+export const updateTableStatus = async (req, res) => {
+  const { status } = req.body;
+  const updated = await Table.findByIdAndUpdate(req.params.id, { status }, { new: true });
+  res.json(updated);
 };
 
-// Calculate revenue
-export const getRevenue = async (req, res) => {
-  const tables = await Table.find();
-  const revenue = tables.reduce((total, t) => total + (t.price || 0), 0);
-  res.render('admin', { tables, revenue });
+export const addOrderToTable = async (req, res) => {
+  const { item, price } = req.body;
+  const table = await Table.findById(req.params.id);
+  table.orders.push({ item, price });
+  table.total += price;
+  await table.save();
+  res.json(table);
+};
+
+export const clearTable = async (req, res) => {
+  const table = await Table.findById(req.params.id);
+  table.orders = [];
+  table.total = 0;
+  table.status = 'not booked';
+  await table.save();
+  res.json({ message: 'Table cleared and reset' });
 };

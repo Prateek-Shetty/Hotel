@@ -1,64 +1,75 @@
-import { useEffect, useState } from 'react';
-import Navbar from '../components/Navbar';
+import { useState } from 'react';
+import TableCard from '../components/TableCard';
 
 const Table = () => {
-  const [form, setForm] = useState({ tableNumber: '', guestName: '', reservationDate: '', price: '' });
-  const [tables, setTables] = useState([]);
+  const [tables, setTables] = useState(
+    Array.from({ length: 15 }, (_, i) => ({
+      number: i + 1,
+      status: 'Available',
+      orders: [],
+    }))
+  );
 
-  const fetchTables = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/tables`);
-    const data = await res.json();
-    setTables(data);
+  const updateStatus = (index, newStatus) => {
+    const updated = [...tables];
+    updated[index].status = newStatus;
+    setTables(updated);
   };
 
-  useEffect(() => {
-    fetchTables();
-  }, []);
-
-  const handleChange = (e) => {
-    setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
+  const addOrder = (index, item, price) => {
+    const updated = [...tables];
+    updated[index].orders.push({ item, price: parseFloat(price) });
+    setTables(updated);
   };
+const generateBill = async (index) => {
+  const table = tables[index];
+  const total = table.orders.reduce((sum, order) => sum + order.price, 0);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/tables`, {
+  try {
+    const res = await fetch(`${import.meta.env.VITE_API_URL}/tables/bill`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form)
+      body: JSON.stringify({
+        tableNumber: table.number,
+        status: table.status,
+        orders: table.orders,
+        total,
+      })
     });
+
+    const data = await res.json();
+
     if (res.ok) {
-      setForm({ tableNumber: '', guestName: '', reservationDate: '', price: '' });
-      fetchTables();
+      alert(`✅ Bill generated for Table ${table.number} (₹${total})`);
+      // Clear orders locally
+      const updated = [...tables];
+      updated[index].orders = [];
+      setTables(updated);
+    } else {
+      alert('❌ Failed to generate bill: ' + data.message);
     }
-  };
+  } catch (err) {
+    console.error(err);
+    alert('❌ Error occurred while generating bill');
+  }
+};
+
+
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <Navbar />
-
-      <div className="p-6">
-        <h2 className="text-2xl font-bold mb-4">Reserve a Table</h2>
-        <form onSubmit={handleSubmit} className="bg-white p-4 rounded-xl shadow-md max-w-md space-y-3">
-          <input name="tableNumber" placeholder="Table Number" onChange={handleChange} value={form.tableNumber} className="w-full p-2 border rounded" required />
-          <input name="guestName" placeholder="Guest Name" onChange={handleChange} value={form.guestName} className="w-full p-2 border rounded" required />
-          <input type="date" name="reservationDate" onChange={handleChange} value={form.reservationDate} className="w-full p-2 border rounded" required />
-          <input name="price" placeholder="Price (INR)" onChange={handleChange} value={form.price} className="w-full p-2 border rounded" required />
-          <button type="submit" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Book</button>
-        </form>
-
-        <h2 className="text-xl font-bold mt-10 mb-4">Reservations</h2>
-        <div className="grid gap-3">
-          {tables.map((table, index) => (
-            <div key={index} className="bg-white p-3 rounded-xl shadow flex justify-between items-center">
-              <div>
-                <p><strong>Table:</strong> {table.tableNumber}</p>
-                <p><strong>Name:</strong> {table.guestName}</p>
-                <p><strong>Date:</strong> {table.reservationDate}</p>
-              </div>
-              <p className="font-semibold">₹{table.price}</p>
-            </div>
-          ))}
-        </div>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <h1 className="text-3xl font-bold text-center mb-8">📋 Table Management</h1>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+        {tables.map((table, index) => (
+          <TableCard
+            key={table.number}
+            table={table}
+            index={index}
+            updateStatus={updateStatus}
+            addOrder={addOrder}
+            generateBill={generateBill}
+          />
+        ))}
       </div>
     </div>
   );

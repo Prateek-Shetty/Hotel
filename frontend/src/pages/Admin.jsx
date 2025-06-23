@@ -1,110 +1,218 @@
 import { useEffect, useState } from 'react';
 
 const Admin = () => {
+  const API = import.meta.env.VITE_API_URL;
   const [hotels, setHotels] = useState([]);
-  const [form, setForm] = useState({
+  const [bills, setBills] = useState([]);
+  const [newHotel, setNewHotel] = useState({
     name: '',
     location: '',
-    description: '',
-    rating: '',
     mapsLink: '',
     link: '',
+    description: '',
+    rating: '',
     collection: '',
     pricePerNight: {
-      currency: 'INR',
       Deluxe: '',
       Executive: '',
-      Suite: ''
-    }
+      Suite: '',
+    },
+    images: [],
+    amenities: []
   });
-  const [revenue, setRevenue] = useState(0);
+
+  const [totalEarnings, setTotalEarnings] = useState(0);
 
   const fetchHotels = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/hotels`);
+    const res = await fetch(`${API}/hotels`);
     const data = await res.json();
     setHotels(data);
   };
 
-  const fetchRevenue = async () => {
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/tables/revenue`);
-    const data = await res.json();
-    setRevenue(data.revenue);
+  const fetchBills = async () => {
+    try {
+      const res = await fetch(`${API}/tables/bills`);
+      const data = await res.json();
+      setBills(data);
+      const total = data.reduce((sum, bill) => sum + (bill.total || 0), 0);
+      setTotalEarnings(total);
+    } catch (err) {
+      console.error('Failed to fetch bills:', err);
+    }
   };
 
   useEffect(() => {
     fetchHotels();
-    fetchRevenue();
+    fetchBills();
   }, []);
 
-  const handleChange = (e) => {
+  const handleInput = (e) => {
     const { name, value } = e.target;
-    if (['Deluxe', 'Executive', 'Suite'].includes(name)) {
-      setForm((prev) => ({
+
+    if (name.startsWith('pricePerNight')) {
+      const key = name.split('.')[1];
+      setNewHotel((prev) => ({
         ...prev,
         pricePerNight: {
           ...prev.pricePerNight,
-          [name]: value
+          [key]: value
         }
       }));
+    } else if (name === 'images') {
+      setNewHotel((prev) => ({ ...prev, images: value.split(',') }));
+    } else if (name === 'amenities') {
+      setNewHotel((prev) => ({ ...prev, amenities: value.split(',').map(a => a.trim()) }));
     } else {
-      setForm((prev) => ({ ...prev, [name]: value }));
+      setNewHotel((prev) => ({ ...prev, [name]: value }));
     }
   };
 
-  const addHotel = async (e) => {
-    e.preventDefault();
-    const res = await fetch(`${import.meta.env.VITE_API_URL}/hotels`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ ...form, rating: Number(form.rating) })
-    });
-    if (res.ok) {
-      await fetchHotels();
+  const handleAddHotel = async () => {
+    try {
+      const res = await fetch(`${API}/hotels`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(newHotel)
+      });
+
+      if (res.ok) {
+        alert('✅ Hotel added');
+        setNewHotel({
+          name: '',
+          location: '',
+          mapsLink: '',
+          link: '',
+          description: '',
+          rating: '',
+          collection: '',
+          pricePerNight: {
+            Deluxe: '',
+            Executive: '',
+            Suite: '',
+          },
+          images: [],
+          amenities: []
+        });
+        fetchHotels();
+      } else {
+        alert('❌ Failed to add hotel');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error occurred');
     }
   };
 
-  const deleteHotel = async (id) => {
-    await fetch(`${import.meta.env.VITE_API_URL}/hotels/${id}`, { method: 'DELETE' });
-    await fetchHotels();
+  const handleDeleteHotel = async (id) => {
+    if (!confirm('Are you sure you want to delete this hotel?')) return;
+
+    try {
+      const res = await fetch(`${API}/hotels/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (res.ok) {
+        alert('🗑️ Hotel deleted');
+        fetchHotels();
+      } else {
+        alert('❌ Failed to delete hotel');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Error occurred');
+    }
   };
 
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-3xl font-bold">Admin Panel</h1>
+    <div className="min-h-screen bg-gray-900 text-white p-6">
+      <h1 className="text-3xl font-bold mb-4 text-center text-indigo-400">🔧 Admin Panel</h1>
 
-      <form onSubmit={addHotel} className="space-y-3 bg-white p-4 rounded-xl shadow-md max-w-xl">
-        <h2 className="text-xl font-semibold">Add New Hotel</h2>
-        <input name="name" onChange={handleChange} placeholder="Hotel Name" className="w-full p-2 border rounded" required />
-        <input name="location" onChange={handleChange} placeholder="Location" className="w-full p-2 border rounded" required />
-        <input name="description" onChange={handleChange} placeholder="Description" className="w-full p-2 border rounded" required />
-        <input name="mapsLink" onChange={handleChange} placeholder="Google Maps Link" className="w-full p-2 border rounded" />
-        <input name="link" onChange={handleChange} placeholder="Website Link" className="w-full p-2 border rounded" />
-        <input name="collection" onChange={handleChange} placeholder="Collection Name" className="w-full p-2 border rounded" />
-        <input name="rating" onChange={handleChange} placeholder="Rating (e.g. 4.5)" className="w-full p-2 border rounded" type="number" step="0.1" />
-        <div className="grid grid-cols-3 gap-2">
-          {['Deluxe', 'Executive', 'Suite'].map(type => (
-            <input key={type} name={type} placeholder={`${type} Price`} onChange={handleChange} className="p-2 border rounded" />
-          ))}
-        </div>
-        <button type="submit" className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800">Add Hotel</button>
-      </form>
-
-      <div>
-        <h2 className="text-xl font-semibold mb-2">Hotel List</h2>
-        <ul className="space-y-2">
-          {hotels.map(hotel => (
-            <li key={hotel._id} className="flex justify-between items-center p-3 bg-white rounded-xl shadow">
-              <div>
-                <strong>{hotel.name}</strong> – {hotel.location}
-              </div>
-              <button onClick={() => deleteHotel(hotel._id)} className="text-red-600 font-bold">Delete</button>
-            </li>
-          ))}
-        </ul>
+      <div className="text-center mb-8">
+        <p className="text-xl font-semibold text-green-400">
+          💰 Total Earnings: ₹{totalEarnings.toLocaleString()}
+        </p>
       </div>
 
-      <div className="text-xl font-bold">
-        💰 Total Revenue from Tables: ₹{revenue}
+      <div className="bg-gray-800 p-4 rounded-xl mb-10">
+        <h2 className="text-xl font-semibold mb-4 text-indigo-300">➕ Add New Hotel</h2>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {['name', 'location', 'mapsLink', 'link', 'description', 'rating', 'collection'].map((field) => (
+            <input
+              key={field}
+              type="text"
+              name={field}
+              placeholder={field}
+              value={newHotel[field]}
+              onChange={handleInput}
+              className="p-2 bg-gray-700 text-white rounded"
+            />
+          ))}
+          <input
+            type="text"
+            name="pricePerNight.Deluxe"
+            placeholder="Deluxe Price"
+            value={newHotel.pricePerNight.Deluxe}
+            onChange={handleInput}
+            className="p-2 bg-gray-700 text-white rounded"
+          />
+          <input
+            type="text"
+            name="pricePerNight.Executive"
+            placeholder="Executive Price"
+            value={newHotel.pricePerNight.Executive}
+            onChange={handleInput}
+            className="p-2 bg-gray-700 text-white rounded"
+          />
+          <input
+            type="text"
+            name="pricePerNight.Suite"
+            placeholder="Suite Price"
+            value={newHotel.pricePerNight.Suite}
+            onChange={handleInput}
+            className="p-2 bg-gray-700 text-white rounded"
+          />
+          <input
+            type="text"
+            name="images"
+            placeholder="Image URLs (comma separated)"
+            value={newHotel.images.join(',')}
+            onChange={handleInput}
+            className="p-2 bg-gray-700 text-white rounded col-span-full"
+          />
+          <input
+            type="text"
+            name="amenities"
+            placeholder="Amenities (comma separated)"
+            value={newHotel.amenities.join(',')}
+            onChange={handleInput}
+            className="p-2 bg-gray-700 text-white rounded col-span-full"
+          />
+        </div>
+
+        <button
+          onClick={handleAddHotel}
+          className="mt-4 w-full bg-indigo-600 hover:bg-indigo-700 py-2 rounded font-semibold"
+        >
+          ➕ Add Hotel
+        </button>
+      </div>
+
+      <h2 className="text-2xl font-bold mb-4 text-indigo-300">🏨 Hotel List</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {hotels.map((hotel) => (
+          <div key={hotel._id} className="bg-gray-800 rounded-lg p-4 border border-indigo-600 space-y-2">
+            <h3 className="text-lg font-bold text-indigo-300">{hotel.name}</h3>
+            <p className="text-sm text-gray-300">{hotel.location}</p>
+            <p className="text-sm text-gray-400 line-clamp-2">{hotel.description}</p>
+            <button
+              onClick={() => handleDeleteHotel(hotel._id)}
+              className="mt-2 bg-red-600 hover:bg-red-700 px-3 py-1 rounded text-sm"
+            >
+              🗑️ Delete
+            </button>
+          </div>
+        ))}
       </div>
     </div>
   );
